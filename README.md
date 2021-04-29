@@ -6,21 +6,28 @@
 
 ### building 
 from the repository root directory
-`cd cmd/adj`
-`go build`
+
+```
+cd cmd/adj
+go build
+```
 
 ### running
 from `cmd/adj`, after building the binary (assuming the previous steps are followed)
+
 `./adj -parallel 3 google.com facebook.com twitter.com`
-for list of accepted flags, run
-`./adj -h`
+
+for list of accepted flags, run `./adj -h`
+
 when `-max` is not set, it defaults to 10.
+
 when `-parallel` is not set, it defaults to 1 (that is, operations are run synchronously).
 
 ### testing
 from the repository root directory, simply run `go test -v ./...`
 
 to get benchmark of parallel executions, run `go test -bench=.`
+
 this is a sample result of running 1000 jobs on local server with different number of workers.
 ```
 goos: linux
@@ -36,7 +43,9 @@ BenchmarkParallel/100_workers-4      	1000000000	         0.08202 ns/op
 PASS
 ok  	github.com/ronaudinho/adj	3.484s
 ```
-since goroutines depends on the number of available cpu, benchmark shows that past a certain number, having more parallel processes actually results in slower operations. the result should vary depending on the machine. actual http calls are not included in the test as they would be affected by network speed as well, and would warrant further investigation if performance is an issue (probably using `pprof` or tracing or even `eBPF`).
+since goroutines depends on the number of available cpu, benchmark shows that past a certain number, having more parallel processes actually results in slower operations. the result should vary depending on the machine.
+
+actual http calls are not included in the test as they would be affected by network speed as well, and would warrant further investigation if performance is an issue (probably using `pprof` or tracing or even `eBPF`).
 
 ### project structure
 as it is a rather simple project, I opted for the root directory package codes with the main program inside `cmd` folder.
@@ -47,9 +56,10 @@ as it is a rather simple project, I opted for the root directory package codes w
 3. error on http call is not explicitly handled (skip on error).
 
 ### technical choices
-1. Get exposed as synchronous function per https://talks.golang.org/2013/bestpractices.slide#25
+1. Get [exposed as synchronous function](https://talks.golang.org/2013/bestpractices.slide#25)
 
 ### possible improvements
-1. using `sync` and/or `sync/atomic` for parallel operations
+1. investigate using `sync` and/or `sync/atomic` for parallel operations
 2. more explicit error handling
 3. limits the time required to fetch a resource
+4. handle cached results
